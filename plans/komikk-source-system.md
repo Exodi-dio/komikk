@@ -49,8 +49,10 @@ interface Source {                     // every plugin provides exactly one of t
 
 - `Manga`/`Chapter`/`Page` are pure KMP value types. URLs stay *lazy* (resolved by
   `getPages`) so sources control per-request headers (Referer, cookies).
-- `Paged<T>` carries items + hasNext + error outcome so the UI can keep infinite
-  scroll and error-state pages honest.
+- `Paged<T>` carries items + hasNext so the UI can drive infinite scroll;
+  failures are signaled by throwing `SourceException` (sealed mode model:
+  Network/Unauthorized/NotFound/RateLimited/Parse/FeatureNotSupported), never
+  carried inside the page result.
 - Network goes through a `SourceHttpExecutor` interface defined in `core` and
   implemented once in `androidApp` (OkHttp): per-source User-Agent/cookie-jar
   isolation, retry/backoff, and request-tagging for cancellation. Tests use
