@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
-import com.google.devtools.ksp.symbol.Visibility
 
 /**
  * KSP entry point. Registers the processor via
@@ -96,11 +95,12 @@ class SourceRegistryProcessor(
         if (Modifier.ABSTRACT in declaration.modifiers) {
             return "KomikkSource class must not be abstract"
         }
-        if (declaration.getVisibility() != Visibility.PUBLIC) {
+        if (!isEffectivelyPublic(declaration.modifiers)) {
             return "KomikkSource class must be public (registry calls it from the app)"
         }
-        val constructor = declaration.getConstructors().first()
-        if (constructor.getVisibility() != Visibility.PUBLIC) {
+        val constructor = declaration.getPrimaryConstructor()
+            ?: return "KomikkSource class must declare a single primary constructor"
+        if (!isEffectivelyPublic(constructor.modifiers)) {
             return "KomikkSource constructor must be public"
         }
         val parameterTypes = constructor.parameters
@@ -110,6 +110,17 @@ class SourceRegistryProcessor(
         }
         return null
     }
+
+    /**
+     * KSP idiom for "is this effectively public?". `Modifier.PUBLIC` is not
+     * emitted for implicit (default) public, so public = no visibility
+     * restriction is present. Same shape as the verified
+     * `Modifier.ABSTRACT in declaration.modifiers` check in [reportValidation].
+     */
+    private fun isEffectivelyPublic(modifiers: Set<Modifier>): Boolean =
+        Modifier.PRIVATE !in modifiers &&
+            Modifier.PROTECTED !in modifiers &&
+            Modifier.INTERNAL !in modifiers
 
     private companion object {
         const val ANNOTATION = "io.komikk.core.KomikkSource"
