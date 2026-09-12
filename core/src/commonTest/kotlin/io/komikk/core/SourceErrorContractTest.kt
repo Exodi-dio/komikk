@@ -31,7 +31,9 @@ class SourceErrorContractTest {
 
     @Test
     fun distinctModesAreNotEqual() {
-        assertNotEquals(SourceException.NotFound(), SourceException.Network())
+        val notFound: SourceException = SourceException.NotFound()
+        val network: SourceException = SourceException.Network()
+        assertNotEquals(notFound, network)
     }
 
     @Test
