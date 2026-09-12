@@ -15,7 +15,7 @@ class SourceIdentityContractTest {
 
     private val sourceId = "io.komikk.mangadex"
     private val mangaId = "a1b2c3d4"
-    private const val MANGA_KEY = "io.komikk.mangadex/a1b2c3d4"
+    private val mangaKey = "io.komikk.mangadex/a1b2c3d4"
 
     @Test
     fun sameIdsProduceEqualModels() {
@@ -35,7 +35,7 @@ class SourceIdentityContractTest {
     fun libraryKeyIsSourceIdPlusMangaId() {
         val manga = Manga(sourceId = sourceId, id = mangaId, title = "Alpha", url = "https://x")
         val key = "${manga.sourceId}/${manga.id}"
-        assertEquals(MANGA_KEY, key)
+        assertEquals(mangaKey, key)
     }
 
     @Test

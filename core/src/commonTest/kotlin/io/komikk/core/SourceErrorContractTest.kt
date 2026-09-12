@@ -24,7 +24,7 @@ class SourceErrorContractTest {
 
     @Test
     fun callersCanCatchByMode() {
-        val caught = runCatching { throw SourceException.RateLimited() }.exceptionOrNull()
+        val caught = captureThrowable { throw SourceException.RateLimited() }
         assertIs<SourceException.RateLimited>(caught)
         assertIs<SourceException>(caught)
     }
@@ -43,14 +43,15 @@ class SourceErrorContractTest {
 
     @Test
     fun cancellationExceptionsAreNeverWrapped() {
-        val pump: suspend () -> Unit = {
-            throw CancellationException("cancelled")
-        }
-        val raised = runCatching { runCurrentCancelling(pump) }.exceptionOrNull()
-        assertIs<CancellationException>(raised)
+        val thrown = captureThrowable { throw CancellationException("cancelled") }
+        assertIs<CancellationException>(thrown)
     }
 }
 
-private suspend fun runCurrentCancelling(block: suspend () -> Unit) {
-    block()
-}
+private fun captureThrowable(block: () -> Unit): Throwable? =
+    try {
+        block()
+        null
+    } catch (t: Throwable) {
+        t
+    }
