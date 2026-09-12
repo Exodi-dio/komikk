@@ -40,6 +40,12 @@ jobs:
       - name: Test core
         run: ./gradlew :core:testAndroidHostTest
 
+      - name: Test registry
+        run: ./gradlew :registry:test
+
+      - name: Test source manager (host)
+        run: ./gradlew :androidApp:testDevDebugUnitTest
+
       - name: Assemble debug APK
         run: ./gradlew :androidApp:assembleDevDebug
 
